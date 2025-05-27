@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: goappdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "goappdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build: .
+    container_name: go_app
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=goappdb
+      - JWT_SECRET=your-super-secret-jwt-key
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+    volumes:
+      - .:/app
+    command: ["./main"]
+
+volumes:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge
