@@ -20,7 +20,7 @@ func Connect(cfg config.DatabaseConfig) (*pgxpool.Pool, error) {
 	}
 
 	if err := pool.Ping(context.Background()); err != nil {
-		return nil, fmt.Errorf("failed to ping database: %@", err)
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
 	return pool, nil
