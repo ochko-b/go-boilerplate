@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	fiber_recover "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 	"github.com/ochko-b/goapp/internal/config"
 	"github.com/ochko-b/goapp/internal/database"
@@ -56,7 +57,7 @@ func main() {
 	})
 
 	// Global Middleware
-	// app.Use(recover.New())
+	app.Use(fiber_recover.New())
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: cfg.CORS.Origins,
