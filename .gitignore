@@ -16,8 +16,6 @@ go.work
 
 # env
 .env
-.env.local
-.env.*
 
 # OS
 .DS_Store
