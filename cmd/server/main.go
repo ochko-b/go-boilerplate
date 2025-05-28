@@ -8,10 +8,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	fiber_recover "github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
+	"github.com/ochko-b/goapp/cmd/server/routes"
 	"github.com/ochko-b/goapp/internal/config"
 	"github.com/ochko-b/goapp/internal/database"
 	"github.com/ochko-b/goapp/internal/handlers"
-	"github.com/ochko-b/goapp/internal/middleware"
 	"github.com/ochko-b/goapp/internal/repository"
 	"github.com/ochko-b/goapp/internal/services"
 )
@@ -65,27 +65,12 @@ func main() {
 		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
 	}))
 
-	setupRoutes(app, authHandler, userHandler, healthHandler, cfg.JWT.Secret)
+	routes.Setup(app, &routes.Handlers{
+		Auth:   authHandler,
+		User:   userHandler,
+		Health: healthHandler,
+	}, cfg.JWT.Secret)
 
 	log.Printf("Server starting on %s:%s", cfg.Server.Host, cfg.Server.Port)
 	log.Fatal(app.Listen(cfg.Server.Host + ":" + cfg.Server.Port))
-}
-
-func setupRoutes(app *fiber.App, authHandler *handlers.AuthHandler, userHandler *handlers.UserHandler, healthHandler *handlers.HealthHandler, jwtSecret string) {
-	app.Get("/health", healthHandler.Check)
-
-	api := app.Group("/api/v1")
-
-	auth := api.Group("/auth")
-	auth.Post("/register", authHandler.Register)
-	auth.Post("/login", authHandler.Login)
-
-	protected := api.Group("/", middleware.JWTAuth(jwtSecret))
-	protected.Get("/users/me", userHandler.GetProfile)
-	protected.Put("/users/me", userHandler.UpdateProfile)
-	protected.Post("/auth/refresh", authHandler.Refresh)
-
-	protected.Get("/users/:id", userHandler.GetUser)
-	protected.Put("/users/:id", userHandler.UpdateUserTransaction)
-	protected.Get("/users", userHandler.ListUser)
 }
