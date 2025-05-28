@@ -81,9 +81,11 @@ func setupRoutes(app *fiber.App, authHandler *handlers.AuthHandler, userHandler 
 	auth.Post("/login", authHandler.Login)
 
 	protected := api.Group("/", middleware.JWTAuth(jwtSecret))
-	protected.Post("/auth/refresh", authHandler.Refresh)
 	protected.Get("/users/me", userHandler.GetProfile)
 	protected.Put("/users/me", userHandler.UpdateProfile)
-	protected.Get("/users", userHandler.ListUser)
+	protected.Post("/auth/refresh", authHandler.Refresh)
+
 	protected.Get("/users/:id", userHandler.GetUser)
+	protected.Put("/users/:id", userHandler.UpdateUserTransaction)
+	protected.Get("/users", userHandler.ListUser)
 }

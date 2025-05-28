@@ -52,6 +52,29 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	return utils.SuccessResponse(c, user, "Profile updated successfully")
 }
 
+func (h *UserHandler) UpdateUserTransaction(c *fiber.Ctx) error {
+	userID := c.Params("id")
+	if _, err := uuid.Parse(userID); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid user ID")
+	}
+
+	var req models.UpdateProfileRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid Request Body")
+	}
+
+	if err := h.validator.Struct(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "here?")
+	}
+
+	user, err := h.userService.UpdateUserWithTransaction(c.Context(), userID, &req)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
+	}
+
+	return utils.SuccessResponse(c, user, "User updated successfully")
+}
+
 func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 	userID := c.Params("id")
 	if _, err := uuid.Parse(userID); err != nil {

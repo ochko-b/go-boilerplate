@@ -20,7 +20,7 @@ func New(db *pgxpool.Pool) *Repository {
 	}
 }
 
-func (r *Repository) WithTx(tx *pgxpool.Tx) *Repository {
+func (r *Repository) WithTx(tx pgx.Tx) *Repository {
 	return &Repository{
 		Queries: r.Queries.WithTx(tx),
 		db:      r.db,
